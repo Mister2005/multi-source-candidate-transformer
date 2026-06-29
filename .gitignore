@@ -1,0 +1,41 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment / secrets — NEVER commit
+.env
+*.env
+secrets/
+
+# Test cache
+.pytest_cache/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Output runs — contain PII from test runs
+output/
+
+# Assignment screenshots — not part of submission
+1.jpeg
+2.jpeg
+3.jpeg
+4.jpeg
+*.jpeg
+*.jpg
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+docs/

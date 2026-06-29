@@ -1,0 +1,232 @@
+{
+  "candidate_id": "8f250a2a7bcc19e7",
+  "full_name": "Alex Johnson",
+  "emails": [
+    "alex.johnson@example.com"
+  ],
+  "phones": [
+    "+14155550123"
+  ],
+  "location": {
+    "city": "San Francisco",
+    "region": "CA",
+    "country": "US"
+  },
+  "links": {
+    "linkedin": "https://linkedin.com/in/alexjohnson-dev",
+    "github": "https://github.com/alexjohnson-dev",
+    "other": []
+  },
+  "headline": "Senior Software Engineer",
+  "years_experience": 6.9,
+  "skills": [
+    {
+      "name": "Python",
+      "confidence": 0.905,
+      "sources": [
+        "ats_json",
+        "csv",
+        "recruiter_txt"
+      ]
+    },
+    {
+      "name": "React",
+      "confidence": 0.905,
+      "sources": [
+        "ats_json",
+        "csv"
+      ]
+    },
+    {
+      "name": "PostgreSQL",
+      "confidence": 0.905,
+      "sources": [
+        "ats_json",
+        "csv",
+        "recruiter_txt"
+      ]
+    },
+    {
+      "name": "Docker",
+      "confidence": 0.905,
+      "sources": [
+        "ats_json",
+        "csv",
+        "recruiter_txt"
+      ]
+    },
+    {
+      "name": "AWS",
+      "confidence": 0.905,
+      "sources": [
+        "ats_json",
+        "csv",
+        "recruiter_txt"
+      ]
+    },
+    {
+      "name": "TypeScript",
+      "confidence": 0.855,
+      "sources": [
+        "ats_json"
+      ]
+    },
+    {
+      "name": "Redis",
+      "confidence": 0.54,
+      "sources": [
+        "recruiter_txt"
+      ]
+    },
+    {
+      "name": "Kubernetes",
+      "confidence": 0.54,
+      "sources": [
+        "recruiter_txt"
+      ]
+    },
+    {
+      "name": "GitHub",
+      "confidence": 0.54,
+      "sources": [
+        "recruiter_txt"
+      ]
+    },
+    {
+      "name": "Machine Learning",
+      "confidence": 0.54,
+      "sources": [
+        "recruiter_txt"
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "company": "TechCorp Inc.",
+      "title": "Senior Software Engineer",
+      "start": "2021-03",
+      "end": null,
+      "summary": "Led backend services team. Built distributed data pipeline serving 2M+ users."
+    },
+    {
+      "company": "StartupXYZ",
+      "title": "Software Engineer",
+      "start": "2019-06",
+      "end": "2021-02",
+      "summary": "Full-stack development using React and Node.js."
+    }
+  ],
+  "education": [
+    {
+      "institution": "State University",
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "end_year": 2019
+    }
+  ],
+  "provenance": [
+    {
+      "field": "full_name",
+      "source": "csv",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "full_name",
+      "source": "recruiter_txt",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "full_name",
+      "source": "ats_json",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "location_raw",
+      "source": "csv",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "location",
+      "source": "ats_json",
+      "method": "direct+normalize",
+      "note": null
+    },
+    {
+      "field": "linkedin_url",
+      "source": "csv",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "linkedin_url",
+      "source": "recruiter_txt",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "links.linkedin",
+      "source": "ats_json",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "github_url",
+      "source": "recruiter_txt",
+      "method": "direct",
+      "note": "conflict: overridden by csv"
+    },
+    {
+      "field": "links.github",
+      "source": "csv",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "headline",
+      "source": "ats_json",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "emails",
+      "source": "ats_json",
+      "method": "direct+normalize",
+      "note": null
+    },
+    {
+      "field": "phones",
+      "source": "csv,ats_json,recruiter_txt",
+      "method": "direct+normalize(E164)",
+      "note": null
+    },
+    {
+      "field": "skills",
+      "source": "multiple",
+      "method": "keyword_match+canonicalize",
+      "note": null
+    },
+    {
+      "field": "experience",
+      "source": "multiple",
+      "method": "union+date_normalize",
+      "note": null
+    },
+    {
+      "field": "years_experience",
+      "source": "multiple",
+      "method": "computed_from_experience",
+      "note": null
+    },
+    {
+      "field": "education",
+      "source": "multiple",
+      "method": "union",
+      "note": null
+    }
+  ],
+  "overall_confidence": 0.877
+}

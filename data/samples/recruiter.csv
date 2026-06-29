@@ -1,0 +1,2 @@
+name,email,phone,current_company,title,location,linkedin,github,skills
+Alex Johnson,alex.johnson@example.com,(415) 555-0123,TechCorp Inc.,Senior Software Engineer,"San Francisco, CA, USA",https://linkedin.com/in/alexjohnson-dev,https://github.com/alexjohnson-dev,"Python, React, PostgreSQL, Docker, AWS"

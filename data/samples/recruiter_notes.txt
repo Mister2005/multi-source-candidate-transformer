@@ -1,0 +1,17 @@
+Candidate: Alex Johnson
+Spoke with Alex on June 15, 2026. Very strong systems background.
+
+Contact: alex.johnson@example.com | +1 415-555-0123
+LinkedIn: linkedin.com/in/alexjohnson-dev
+GitHub: github.com/alexjohnson-dev
+
+Location: San Francisco, CA
+
+Strong Python and AWS skills. Mentioned interest in distributed systems and ML pipelines.
+Has experience with PostgreSQL and Redis. Knows Docker and Kubernetes.
+Currently at TechCorp Inc. as Senior Software Engineer since early 2021.
+
+Graduated from State University with a BS in Computer Science in 2019.
+
+Good culture fit. Strong communicator. Available to interview next week.
+Salary expectation: $180k-$200k base.

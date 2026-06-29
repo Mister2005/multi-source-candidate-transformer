@@ -1,0 +1,33 @@
+{
+  "candidateName": "Alex Johnson",
+  "emailAddress": "alex.johnson@example.com",
+  "phoneNumber": "+14155550123",
+  "location": "San Francisco, CA, USA",
+  "linkedinUrl": "https://linkedin.com/in/alexjohnson-dev",
+  "currentTitle": "Senior Software Engineer",
+  "skillSet": ["Python", "React", "PostgreSQL", "Docker", "AWS", "TypeScript"],
+  "experience": [
+    {
+      "company": "TechCorp Inc.",
+      "title": "Senior Software Engineer",
+      "startDate": "2021-03",
+      "endDate": null,
+      "description": "Led backend services team. Built distributed data pipeline serving 2M+ users."
+    },
+    {
+      "company": "StartupXYZ",
+      "title": "Software Engineer",
+      "startDate": "2019-06",
+      "endDate": "2021-02",
+      "description": "Full-stack development using React and Node.js."
+    }
+  ],
+  "education": [
+    {
+      "school": "State University",
+      "degree": "Bachelor of Science",
+      "major": "Computer Science",
+      "graduationYear": 2019
+    }
+  ]
+}

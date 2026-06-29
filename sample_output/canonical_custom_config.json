@@ -1,0 +1,128 @@
+{
+  "full_name": "Alex Johnson",
+  "primary_email": "alex.johnson@example.com",
+  "phone": "+14155550123",
+  "location_country": "US",
+  "location_city": "San Francisco",
+  "linkedin": "https://linkedin.com/in/alexjohnson-dev",
+  "github": "https://github.com/alexjohnson-dev",
+  "headline": "Senior Software Engineer",
+  "years_experience": 6.9,
+  "top_skills": [
+    "Python",
+    "React",
+    "PostgreSQL",
+    "Docker",
+    "AWS",
+    "TypeScript",
+    "Redis",
+    "Kubernetes",
+    "GitHub",
+    "Machine Learning"
+  ],
+  "_confidence": 0.877,
+  "_provenance": [
+    {
+      "field": "full_name",
+      "source": "csv",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "full_name",
+      "source": "recruiter_txt",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "full_name",
+      "source": "ats_json",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "location_raw",
+      "source": "csv",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "location",
+      "source": "ats_json",
+      "method": "direct+normalize",
+      "note": null
+    },
+    {
+      "field": "linkedin_url",
+      "source": "csv",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "linkedin_url",
+      "source": "recruiter_txt",
+      "method": "direct",
+      "note": "conflict: overridden by ats_json"
+    },
+    {
+      "field": "links.linkedin",
+      "source": "ats_json",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "github_url",
+      "source": "recruiter_txt",
+      "method": "direct",
+      "note": "conflict: overridden by csv"
+    },
+    {
+      "field": "links.github",
+      "source": "csv",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "headline",
+      "source": "ats_json",
+      "method": "direct",
+      "note": null
+    },
+    {
+      "field": "emails",
+      "source": "ats_json",
+      "method": "direct+normalize",
+      "note": null
+    },
+    {
+      "field": "phones",
+      "source": "ats_json,csv,recruiter_txt",
+      "method": "direct+normalize(E164)",
+      "note": null
+    },
+    {
+      "field": "skills",
+      "source": "multiple",
+      "method": "keyword_match+canonicalize",
+      "note": null
+    },
+    {
+      "field": "experience",
+      "source": "multiple",
+      "method": "union+date_normalize",
+      "note": null
+    },
+    {
+      "field": "years_experience",
+      "source": "multiple",
+      "method": "computed_from_experience",
+      "note": null
+    },
+    {
+      "field": "education",
+      "source": "multiple",
+      "method": "union",
+      "note": null
+    }
+  ]
+}
