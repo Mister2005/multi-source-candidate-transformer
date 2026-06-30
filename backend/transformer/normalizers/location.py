@@ -60,8 +60,18 @@ def normalize_location(raw: str | None) -> dict | None:
         result["region"] = None
         result["country"] = country_code or parts[-1]
     else:
-        result["city"] = None
-        result["region"] = None
-        result["country"] = country_code or raw
+        # A single unqualified value (no commas) is far more often a city
+        # than a country in real-world profile data (e.g. GitHub's bare
+        # "location" field commonly returns "Mumbai", not "India"). Only
+        # treat it as a country if it actually matched a known country
+        # name/code; otherwise assume city.
+        if country_code:
+            result["city"] = None
+            result["region"] = None
+            result["country"] = country_code
+        else:
+            result["city"] = raw
+            result["region"] = None
+            result["country"] = None
 
     return result
