@@ -8,6 +8,7 @@ from transformer.extractors.ats_json_extractor import ATSJsonExtractor
 from transformer.extractors.github_extractor import GitHubExtractor
 from transformer.extractors.resume_extractor import ResumeExtractor
 from transformer.extractors.txt_extractor import TxtExtractor
+from transformer.extractors.linkedin_extractor import LinkedInExtractor
 from transformer import merger, confidence, projector, validator
 
 logger = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ EXTRACTORS = {
     "resume_pdf": ResumeExtractor(),
     "resume_docx": ResumeExtractor(),
     "recruiter_txt": TxtExtractor(),
+    "linkedin_url": LinkedInExtractor(),
 }
 
 
@@ -73,11 +75,14 @@ class TransformerPipeline:
                 logger.warning("Could not detect source type for: %s", str(content)[:60])
                 warnings.append(f"Unknown source type: {str(content)[:60]}")
                 continue
-            if src_type == "linkedin_url":
-                logger.info("LinkedIn URL detected — skipping (descoped: requires OAuth/scraping)")
+            if src_type == "linkedin_url" and not isinstance(content, dict):
+                # A bare LinkedIn URL string with no OAuth-fetched profile data
+                # behind it — can't be scraped without violating LinkedIn's ToS.
+                logger.info("LinkedIn URL detected with no profile data — skipping")
                 warnings.append(
-                    "LinkedIn source skipped — descoped in v1 (requires authenticated scraping "
-                    "or OAuth; violates LinkedIn ToS without it). URL preserved in links if found in other sources."
+                    "LinkedIn source skipped — only a URL was provided with no OAuth profile data. "
+                    "Use the /auth/linkedin flow to fetch a profile dict first. URL preserved in links "
+                    "if found in other sources."
                 )
                 continue
             source_items.append(SourceItem(type=src_type, raw_content=content))

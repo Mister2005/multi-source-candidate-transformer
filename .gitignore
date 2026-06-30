@@ -3,6 +3,7 @@ venv/
 
 # Python cache
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -14,14 +15,20 @@ secrets/
 
 # Test cache
 .pytest_cache/
+**/.pytest_cache/
 
 # Build artifacts
 *.egg-info/
 dist/
 build/
 
-# Output runs — contain PII from test runs
+# Output runs — contain PII from test runs (root and backend/)
 output/
+backend/output/
+
+# Local batch-mode scratch input/output, if used
+batch_*/
+candidates/
 
 # Assignment screenshots — not part of submission
 1.jpeg
@@ -30,6 +37,10 @@ output/
 4.jpeg
 *.jpeg
 *.jpg
+
+# Local one-pager PDF/HTML export and its screenshot — generated artifact,
+# not meant to be tracked (regenerate from VarunGupta_*_Eightfold.html)
+VarunGupta_*_Eightfold-screenshot.png
 
 # OS files
 .DS_Store

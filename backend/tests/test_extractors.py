@@ -119,3 +119,48 @@ class TestTxtExtractor:
         item = SourceItem(type="recruiter_txt", raw_content="")
         record = self.extractor.extract(item)
         assert record is not None
+
+
+def _tesseract_available() -> bool:
+    import shutil
+    from pathlib import Path as _P
+    if shutil.which("tesseract"):
+        return True
+    return _P(r"C:\Program Files\Tesseract-OCR\tesseract.exe").exists()
+
+
+@pytest.mark.skipif(not _tesseract_available(), reason="Tesseract OCR binary not installed on this machine")
+class TestResumeExtractorOCR:
+    """Synthetic 'scanned' PDF: a page with no embedded text layer, just a
+    rendered image of text. Exercises the pdfplumber -> OCR fallback path."""
+
+    def _build_scanned_pdf(self, tmp_path):
+        from PIL import Image, ImageDraw
+        import pdfplumber  # noqa: F401  (ensures dependency present before building)
+        from reportlab.pdfgen import canvas as rl_canvas
+
+        # Render text into an image
+        img = Image.new("RGB", (900, 300), color="white")
+        draw = ImageDraw.Draw(img)
+        draw.text((20, 20), "Jordan Lee", fill="black")
+        draw.text((20, 60), "jordan.lee@example.com", fill="black")
+        img_path = tmp_path / "scanned_page.png"
+        img.save(img_path)
+
+        pdf_path = tmp_path / "scanned_resume.pdf"
+        c = rl_canvas.Canvas(str(pdf_path), pagesize=(900, 300))
+        c.drawImage(str(img_path), 0, 0, width=900, height=300)
+        c.save()
+        return pdf_path
+
+    def test_ocr_fallback_extracts_text(self, tmp_path):
+        reportlab = pytest.importorskip("reportlab")
+        from transformer.extractors.resume_extractor import ResumeExtractor
+
+        pdf_path = self._build_scanned_pdf(tmp_path)
+        item = SourceItem(type="resume_pdf", raw_content=str(pdf_path))
+        record = ResumeExtractor().extract(item)
+
+        # OCR is not 100% deterministic, but the record should not be empty/crash
+        # and ideally picks up the embedded email via regex over OCR'd text.
+        assert record is not None

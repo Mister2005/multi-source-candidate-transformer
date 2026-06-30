@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class SourceItem(BaseModel):
-    type: Literal["csv", "ats_json", "github_url", "resume_pdf", "resume_docx", "recruiter_txt"]
+    type: Literal["csv", "ats_json", "github_url", "resume_pdf", "resume_docx", "recruiter_txt", "linkedin_url"]
     raw_content: Any
     metadata: dict = Field(default_factory=dict)
 

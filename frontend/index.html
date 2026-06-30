@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Candidate Data Transformer</title>
+<style>
+  :root { --accent: #4f46e5; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); margin: 0; padding: 32px; color: #1e293b; }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #64748b; margin-bottom: 24px; font-size: 14px; }
+  .layout { display: grid; grid-template-columns: 380px 1fr; gap: 24px; align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 4px; }
+  input[type=file], input[type=text] { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+  button { cursor: pointer; border: none; border-radius: 6px; padding: 10px 16px; font-weight: 600; font-size: 14px; }
+  .btn-primary { background: var(--accent); color: white; width: 100%; margin-top: 18px; }
+  .btn-secondary { background: #0a66c2; color: white; width: 100%; margin-top: 10px; }
+  .btn-ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); font-size: 12px; padding: 6px 10px; }
+  .check-row { display: flex; align-items: center; gap: 6px; margin-top: 14px; font-size: 13px; }
+  pre { white-space: pre-wrap; word-break: break-word; background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; font-size: 12px; max-height: 480px; overflow: auto; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .badge-high { background: #dcfce7; color: #166534; }
+  .badge-mid { background: #fef9c3; color: #854d0e; }
+  .badge-low { background: #fee2e2; color: #991b1b; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); }
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; color: #64748b; }
+  .tab.active { background: var(--accent); color: white; }
+  .empty { color: #94a3b8; font-size: 13px; padding: 20px; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>Candidate Data Transformer</h1>
+  <div class="sub">Multi-source canonical candidate profiles — Eightfold.ai assignment</div>
+
+  <div class="layout">
+    <div class="card">
+      <div class="tabs">
+        <div class="tab active" id="tab-new" onclick="showTab('new')">New Transform</div>
+        <div class="tab" id="tab-past" onclick="showTab('past')">Past Candidates</div>
+      </div>
+
+      <div id="panel-new">
+        <label>Recruiter CSV</label>
+        <input type="file" id="csvFile" accept=".csv">
+
+        <label>ATS JSON Export</label>
+        <input type="file" id="atsFile" accept=".json">
+
+        <label>Resume (PDF / DOCX)</label>
+        <input type="file" id="resumeFile" accept=".pdf,.docx">
+
+        <label>Recruiter Notes (.txt)</label>
+        <input type="file" id="notesFile" accept=".txt">
+
+        <label>GitHub Profile URL</label>
+        <input type="text" id="githubUrl" placeholder="https://github.com/username">
+
+        <div class="check-row">
+          <input type="checkbox" id="saveDb">
+          <label style="margin:0;">Save to Postgres</label>
+        </div>
+
+        <button class="btn-primary" onclick="runTransform()">Transform</button>
+        <button class="btn-secondary" onclick="window.location.href='http://localhost:8000/auth/linkedin/login'">Connect LinkedIn</button>
+      </div>
+
+      <div id="panel-past" style="display:none;">
+        <button class="btn-ghost" onclick="loadCandidates()">Refresh</button>
+        <table id="candidatesTable" style="margin-top:12px;">
+          <thead><tr><th>Name</th><th>Confidence</th><th>Saved</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="candidatesEmpty" style="display:none;">No candidates saved yet.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <strong>Canonical Output</strong>
+      <pre id="output">{ "info": "Run a transform or pick a past candidate to see output here." }</pre>
+    </div>
+  </div>
+
+<script>
+const API = "http://localhost:8000";
+
+function showTab(name) {
+  document.getElementById('tab-new').classList.toggle('active', name === 'new');
+  document.getElementById('tab-past').classList.toggle('active', name === 'past');
+  document.getElementById('panel-new').style.display = name === 'new' ? 'block' : 'none';
+  document.getElementById('panel-past').style.display = name === 'past' ? 'block' : 'none';
+  if (name === 'past') loadCandidates();
+}
+
+function confidenceBadge(score) {
+  if (score == null) return '<span class="badge badge-low">n/a</span>';
+  const pct = Math.round(score * 100);
+  const cls = pct >= 80 ? 'badge-high' : pct >= 50 ? 'badge-mid' : 'badge-low';
+  return `<span class="badge ${cls}">${pct}%</span>`;
+}
+
+async function runTransform() {
+  const fd = new FormData();
+  const csv = document.getElementById('csvFile').files[0];
+  const ats = document.getElementById('atsFile').files[0];
+  const resume = document.getElementById('resumeFile').files[0];
+  const notes = document.getElementById('notesFile').files[0];
+  const github = document.getElementById('githubUrl').value.trim();
+  const saveDb = document.getElementById('saveDb').checked;
+
+  if (csv) fd.append('csv_file', csv);
+  if (ats) fd.append('ats_json_file', ats);
+  if (resume) fd.append('resume_file', resume);
+  if (notes) fd.append('notes_file', notes);
+  if (github) fd.append('github_url', github);
+  fd.append('save_to_db', saveDb);
+
+  document.getElementById('output').textContent = 'Running pipeline...';
+  try {
+    const res = await fetch(`${API}/transform`, { method: 'POST', body: fd });
+    const data = await res.json();
+    document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+  } catch (e) {
+    document.getElementById('output').textContent = 'Error: ' + e.message + '\n\nIs the API running? (uvicorn api:app --port 8000)';
+  }
+}
+
+async function loadCandidates() {
+  const tbody = document.querySelector('#candidatesTable tbody');
+  const empty = document.getElementById('candidatesEmpty');
+  tbody.innerHTML = '';
+  try {
+    const res = await fetch(`${API}/candidates`);
+    const rows = await res.json();
+    if (!rows.length) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.style.cursor = 'pointer';
+      const name = (r.canonical_record && r.canonical_record.full_name) || '[no name]';
+      tr.innerHTML = `<td>${name}</td><td>${confidenceBadge(r.overall_confidence)}</td><td>${new Date(r.created_at).toLocaleString()}</td>`;
+      tr.onclick = async () => {
+        const detail = await fetch(`${API}/candidates/${r.candidate_id}`).then(x => x.json());
+        document.getElementById('output').textContent = JSON.stringify(detail, null, 2);
+      };
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    empty.textContent = 'Could not reach API: ' + e.message;
+    empty.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

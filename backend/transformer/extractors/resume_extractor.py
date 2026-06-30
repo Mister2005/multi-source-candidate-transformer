@@ -22,6 +22,22 @@ SECTION_HEADERS = {
 }
 
 
+_TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+
+def _ocr_page(page) -> str:
+    """OCR a scanned (text-less) PDF page via its rendered image."""
+    try:
+        import pytesseract
+        if Path(_TESSERACT_PATH).exists():
+            pytesseract.pytesseract.tesseract_cmd = _TESSERACT_PATH
+        image = page.to_image(resolution=300).original
+        return pytesseract.image_to_string(image) or ""
+    except Exception as e:
+        logger.warning("OCR fallback failed for page: %s", e)
+        return ""
+
+
 def _extract_text_pdf(path: str) -> str:
     try:
         import pdfplumber
@@ -29,6 +45,12 @@ def _extract_text_pdf(path: str) -> str:
         with pdfplumber.open(path) as pdf:
             for page in pdf.pages:
                 text = page.extract_text()
+                if not text or len(text.strip()) < 10:
+                    # Likely a scanned/image-only page — fall back to OCR
+                    ocr_text = _ocr_page(page)
+                    if ocr_text.strip():
+                        pages.append(ocr_text)
+                        continue
                 if text:
                     pages.append(text)
         return "\n".join(pages)

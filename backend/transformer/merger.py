@@ -9,7 +9,7 @@ from transformer.normalizers.date import normalize_date
 logger = logging.getLogger(__name__)
 
 # Higher index = lower priority
-SOURCE_PRIORITY = ["ats_json", "csv", "github_url", "resume_pdf", "resume_docx", "recruiter_txt"]
+SOURCE_PRIORITY = ["ats_json", "csv", "github_url", "resume_pdf", "resume_docx", "recruiter_txt", "linkedin_url"]
 
 
 def _priority(source_type: str) -> int:
@@ -192,3 +192,59 @@ def merge(records: list[RawRecord]) -> CanonicalRecord:
 
     canonical.provenance = prov
     return canonical
+
+
+def merge_canonical_dicts(existing: dict, incoming: dict) -> CanonicalRecord:
+    """
+    Merge two already-canonicalized records for the SAME candidate_id
+    (e.g. one captured via LinkedIn OAuth today, another via resume+GitHub
+    next week). Used by storage.upsert_candidate to fold a new submission
+    into a candidate's existing profile instead of creating a duplicate row.
+
+    Reconstructs pseudo-RawRecords from each canonical dict's provenance so
+    the normal merge() priority/union/dedup logic can be reused unchanged.
+    """
+    pseudo_records: list[RawRecord] = []
+
+    for snapshot in (existing, incoming):
+        if not snapshot:
+            continue
+        prov_by_field = {p["field"]: p for p in snapshot.get("provenance", [])}
+        source_label = next(iter(prov_by_field.values()), {}).get("source", "merged") if prov_by_field else "merged"
+        # A merged snapshot can span multiple original sources; treat it as
+        # a single high-trust pseudo-source named after its candidate_id so
+        # priority ordering still resolves deterministically (most recently
+        # submitted snapshot wins ties via stable sort order below).
+        rec = RawRecord(
+            source_type="csv",  # reuse a high-priority slot; pseudo-records are pre-normalized
+            full_name=snapshot.get("full_name"),
+            emails=list(snapshot.get("emails") or []),
+            phones=list(snapshot.get("phones") or []),
+            headline=snapshot.get("headline"),
+            years_experience=snapshot.get("years_experience"),
+            skills_raw=[s.get("name") for s in (snapshot.get("skills") or []) if s.get("name")],
+            experience=[ExperienceEntry(**e) for e in (snapshot.get("experience") or [])],
+            education=[EducationEntry(**e) for e in (snapshot.get("education") or [])],
+            linkedin_url=(snapshot.get("links") or {}).get("linkedin"),
+            github_url=(snapshot.get("links") or {}).get("github"),
+            portfolio_url=(snapshot.get("links") or {}).get("portfolio"),
+            other_urls=list((snapshot.get("links") or {}).get("other") or []),
+            location_raw=", ".join(filter(None, [
+                (snapshot.get("location") or {}).get("city"),
+                (snapshot.get("location") or {}).get("region"),
+                (snapshot.get("location") or {}).get("country"),
+            ])) or None,
+        )
+        pseudo_records.append(rec)
+
+    merged = merge(pseudo_records)
+
+    # Preserve full provenance history from both snapshots (not just the
+    # synthetic "csv" entries merge() generated for the pseudo-records).
+    merged.provenance = [
+        ProvenanceEntry(**p) for p in (existing.get("provenance") or [])
+    ] + [
+        ProvenanceEntry(**p) for p in (incoming.get("provenance") or [])
+    ] + merged.provenance
+
+    return merged
